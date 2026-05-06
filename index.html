@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amba Lal Ji ki Chakki</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f9f9f9;
+}
+
+/* HEADER */
+header {
+    background: linear-gradient(135deg, #6b3e26, #a0522d);
+    color: white;
+    padding: 25px;
+    text-align: center;
+}
+
+/* NAVBAR */
+nav {
+    display: flex;
+    justify-content: center;
+    background: white;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+nav a {
+    margin: 0 15px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+/* HERO */
+.hero {
+    height: 300px;
+    background: url("chakki.jpg") center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    animation: zoom 8s infinite alternate;
+}
+
+@keyframes zoom {
+    from { background-size: 100%; }
+    to { background-size: 110%; }
+}
+
+/* CONTAINER */
+.container {
+    padding: 30px;
+    text-align: center;
+}
+
+/* CARDS */
+.cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    margin: 15px;
+    width: 250px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-10px) scale(1.05);
+}
+
+/* FADE ANIMATION */
+.fade {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s ease;
+}
+
+.fade.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* BUTTON */
+button {
+    background: #6b3e26;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.1);
+    background: #8b5a3c;
+}
+
+/* WHATSAPP */
+.whatsapp {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #25D366;
+    color: white;
+    padding: 15px;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 20px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* FOOTER */
+footer {
+    background: #333;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Amba Lal Ji ki Chakki</h1>
+    <p>Fresh & Pure Atta in Kelwara, Rajsamand</p>
+</header>
+
+<nav>
+    <a href="#">Home</a>
+    <a href="#services">Services</a>
+    <a href="#price">Price</a>
+    <a href="#order">Order</a>
+    <a href="#contact">Contact</a>
+</nav>
+
+<div class="hero">
+    Pure & Fresh Flour Everyday
+</div>
+
+<div class="container">
+
+<h2 class="fade" id="services">Our Services</h2>
+<div class="cards fade">
+    <div class="card">🌾 Wheat Grinding</div>
+    <div class="card">🌿 Multi Grain Atta</div>
+    <div class="card">🌶️ Spices Grinding</div>
+</div>
+
+<h2 class="fade" id="price">Price List</h2>
+<div class="cards fade">
+    <div class="card">Wheat Atta – ₹40/kg</div>
+    <div class="card">Multi Grain – ₹55/kg</div>
+    <div class="card">Besan – ₹70/kg</div>
+</div>
+
+<h2 class="fade" id="order">Place Order</h2>
+<form class="fade" onsubmit="sendToWhatsApp(); return false;">
+    <input type="text" id="name" placeholder="Your Name" required>
+    <input type="text" id="phone" placeholder="Mobile Number" required>
+    <textarea id="orderText" placeholder="Your Order"></textarea>
+    <button type="submit">Order on WhatsApp</button>
+</form>
+
+<h2 class="fade">Our Location</h2>
+<iframe class="fade"
+src="https://maps.google.com/maps?q=Kelwara%20Rajsamand%20Rajasthan&t=&z=13&ie=UTF8&iwloc=&output=embed"
+width="90%" height="300" style="border:0;">
+</iframe>
+
+<h2 class="fade" id="contact">Contact</h2>
+<p class="fade">📞 9351610143</p>
+<p class="fade">📍 Kelwara, Rajsamand, Rajasthan</p>
+<p class="fade">🕒 Open: 8 AM – 8 PM</p>
+
+</div>
+
+<a class="whatsapp" href="https://wa.me/919351610143" target="_blank">💬</a>
+
+<footer>
+    <p>© 2026 Amba Lal Ji ki Chakki</p>
+</footer>
+
+<script>
+// Fade-in on scroll
+const faders = document.querySelectorAll('.fade');
+
+window.addEventListener('scroll', () => {
+    const triggerBottom = window.innerHeight * 0.85;
+
+    faders.forEach(el => {
+        const top = el.getBoundingClientRect().top;
+
+        if(top < triggerBottom){
+            el.classList.add('show');
+        }
+    });
+});
+
+// WhatsApp Order
+function sendToWhatsApp() {
+    let name = document.getElementById("name").value;
+    let phone = document.getElementById("phone").value;
+    let order = document.getElementById("orderText").value;
+
+    let message = `Order:%0AName: ${name}%0APhone: ${phone}%0AOrder: ${order}`;
+    let url = "https://wa.me/919351610143?text=" + message;
+
+    window.open(url, "_blank");
+}
+</script>
+
+</body>
+</html>
