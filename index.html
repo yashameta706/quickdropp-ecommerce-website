@@ -1,138 +1,225 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuickDropp Final</title>
+<title>QuickDrop Ultra Pro</title>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <style>
-body{font-family:Arial;margin:0;background:#f1f3f6}
-header{background:#131921;color:#fff;padding:10px;display:flex;justify-content:space-between;align-items:center}
-.container{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;padding:10px}
-.product{background:#fff;padding:10px;border-radius:8px}
-.product img{width:100%;height:140px;object-fit:cover}
-button{padding:6px;border:none;border-radius:4px;cursor:pointer}
+body{margin:0;font-family:Arial;background:#EAEDED}
 
-/* THREE DOT MENU */
-.menu{font-size:22px;cursor:pointer}
+/* NAVBAR */
+.nav{background:#131921;color:white;display:flex;align-items:center;padding:10px}
+.logo{color:#ff9900;font-size:22px;font-weight:bold}
+.search{flex:1;margin:0 10px;padding:8px}
+.icon{margin-left:10px;cursor:pointer}
 
-.cart{
+/* PRODUCTS */
+.products{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px;padding:20px}
+.card{background:white;padding:10px;border-radius:6px;text-align:center}
+.card img{width:100%;height:150px;object-fit:cover}
+.btn{background:#ffd814;border:none;padding:8px;margin-top:5px;width:100%;cursor:pointer}
+
+/* PANELS */
+.panel{
  position:fixed;
- right:10px;
- top:70px;
- background:#fff;
+ top:0;
+ right:-320px;
+ width:300px;
+ height:100%;
+ background:white;
  padding:10px;
- width:260px;
- border-radius:10px;
- display:none;
- box-shadow:0 5px 15px rgba(0,0,0,0.3);
+ overflow:auto;
+ box-shadow:-5px 0 15px rgba(0,0,0,0.3);
+ transition:0.3s ease;
 }
+
+.panel.open{
+ right:0;
+}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;display:none;border-radius:10px}
 </style>
 </head>
+
 <body>
 
-<header>
-<h2>QuickDropp</h2>
-<input placeholder="Search" onkeyup="search(this.value)">
-<div class="menu" onclick="toggleCart()">⋮</div>
-</header>
+<!-- NAV -->
+<div class="nav">
+  <div class="logo">QuickDrop</div>
+  <input class="search" placeholder="Search..." onkeyup="search(this.value)">
+  <div class="icon" onclick="openLogin()">👤</div>
+  <div class="icon" onclick="openOrders()">📦</div>
+  <div class="icon" onclick="toggleCart()">⋮</div>
+</div>
 
-<div class="container" id="products"></div>
+<!-- PRODUCTS -->
+<div class="products" id="products"></div>
 
-<div class="cart" id="cartBox">
-<h4>Cart</h4>
-<ul id="cart"></ul>
-<p>Total ₹<span id="total">0</span></p>
+<!-- CART -->
+<div class="panel" id="cart">
+  <h3>Cart (<span id="count">0</span>)</h3>
+  <div id="cartItems"></div>
+  <h4>Total ₹<span id="total">0</span></h4>
 
-<input id="name" placeholder="Name">
-<input id="phone" placeholder="Phone">
-<textarea id="address" placeholder="Address"></textarea>
+  <input id="name" placeholder="Name"><br><br>
+  <input id="phone" placeholder="Phone"><br><br>
+  <textarea id="address" placeholder="Address"></textarea><br><br>
 
-<button onclick="getLocation()">Use Live Location 📍</button>
-<iframe id="map" width="100%" height="120"></iframe>
+  <button onclick="getLocation()">Use Live Location 📍</button>
+  <iframe id="map" width="100%" height="120"></iframe>
 
-<button onclick="payNow()">Checkout</button>
+  <button onclick="checkout()">Checkout</button>
+</div>
+
+<!-- LOGIN -->
+<div class="modal" id="login">
+  <h3>Login / Signup</h3>
+  <input id="user" placeholder="Username"><br><br>
+  <input id="pass" type="password" placeholder="Password"><br><br>
+  <button onclick="saveUser()">Continue</button>
+</div>
+
+<!-- ORDERS -->
+<div class="panel" id="orders">
+  <h3>Order History</h3>
+  <div id="orderList"></div>
 </div>
 
 <script>
-const products=[
-{name:"T-Shirt",price:500,img:"https://images.unsplash.com/photo-1521572163474"},
-{name:"Shoes",price:1000,img:"https://images.unsplash.com/photo-1542291026"},
-{name:"Headphones",price:2000,img:"https://images.unsplash.com/photo-1518441902110"}
+
+// PRODUCTS
+let products=[
+{name:"Watch",price:1999,img:"https://images.unsplash.com/photo-1523275335684"},
+{name:"Phone",price:9999,img:"https://images.unsplash.com/photo-1511707171634"},
+{name:"Shoes",price:1499,img:"https://images.unsplash.com/photo-1585386959984"},
+{name:"Headphones",price:1299,img:"https://images.unsplash.com/photo-1518441902110"},
+{name:"Bag",price:899,img:"https://images.unsplash.com/photo-1590874103328"}
 ];
 
-let cart=[];
+let cart=JSON.parse(localStorage.getItem("cart"))||[];
+let orders=JSON.parse(localStorage.getItem("orders"))||[];
 
-function toggleCart(){
- let cartBox=document.getElementById("cartBox");
- cartBox.style.display = cartBox.style.display === "block" ? "none" : "block";
+// LOAD
+function load(list=products){
+let html="";
+list.forEach((p,i)=>{
+html+=`<div class="card">
+<img src="${p.img}">
+<h4>${p.name}</h4>
+<p>₹${p.price}</p>
+<button class="btn" onclick="add(${i})">Add to Cart</button>
+<button class="btn" onclick="buyNow(${i})">Buy Now</button>
+</div>`;
+});
+document.getElementById("products").innerHTML=html;
+}
+load();
+
+// SEARCH
+function search(val){
+let f=products.filter(p=>p.name.toLowerCase().includes(val.toLowerCase()));
+load(f);
 }
 
-function loadProducts(list=products){
- let c=document.getElementById("products");c.innerHTML="";
- list.forEach((p,i)=>{
-  c.innerHTML+=`<div class='product'>
-  <img src='${p.img}'>
-  <h4>${p.name}</h4>
-  <p>₹${p.price}</p>
-  <button onclick='add(${i})'>Add</button>
-  </div>`;
- });
-}
-
-function search(q){
- loadProducts(products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())));
-}
-
-function add(i){
- let item=products[i];
- let f=cart.find(c=>c.name==item.name);
- if(f)f.qty++; else cart.push({...item,qty:1});
- updateCart();
-}
+// CART
+function add(i){cart.push(products[i]);saveCart();}
+function remove(i){cart.splice(i,1);saveCart();}
+function saveCart(){localStorage.setItem("cart",JSON.stringify(cart));updateCart();}
 
 function updateCart(){
- let list=document.getElementById("cart");let total=0;list.innerHTML="";
- cart.forEach(i=>{let t=i.price*i.qty;total+=t;list.innerHTML+=`<li>${i.name} x${i.qty}</li>`});
- document.getElementById("total").innerText=total;
+document.getElementById("count").innerText=cart.length;
+let html="",total=0;
+cart.forEach((p,i)=>{
+total+=p.price;
+html+=`<p>${p.name} ₹${p.price} <button onclick="remove(${i})">X</button></p>`;
+});
+document.getElementById("cartItems").innerHTML=html;
+document.getElementById("total").innerText=total;
+}
+updateCart();
+
+// TOGGLE PANELS
+function toggleCart(){
+let c=document.getElementById("cart");
+c.classList.toggle("open");
 }
 
-function payNow(){
- let total=document.getElementById("total").innerText;
- let name=document.getElementById("name").value;
- let phone=document.getElementById("phone").value;
- let address=document.getElementById("address").value;
-
- if(!total||!name||!phone||!address) return alert("Fill all details");
-
- let options={
- key:"YOUR_KEY_ID",
- amount:total*100,
- currency:"INR",
- name:"QuickDropp",
- handler:function(res){
-  let msg=`Order from QuickDropp%0AName:${name}%0APhone:${phone}%0AAddress:${address}%0AAmount:${total}%0APayment:${res.razorpay_payment_id}`;
-  window.location.href=`https://wa.me/91${phone}?text=${msg}`;
- }
- };
- new Razorpay(options).open();
+function openLogin(){
+document.getElementById("login").style.display="block";
 }
 
+function openOrders(){
+let o=document.getElementById("orders");
+o.style.display=o.style.display=="block"?"none":"block";
+showOrders();
+}
+
+// LOGIN
+function saveUser(){
+let u=document.getElementById("user").value;
+localStorage.setItem("user",u);
+alert("Welcome "+u);
+document.getElementById("login").style.display="none";
+}
+
+// ORDERS
+function showOrders(){
+let html="";
+orders.forEach(o=>{html+=`<p>${o}</p>`});
+document.getElementById("orderList").innerHTML=html;
+}
+
+// BUY NOW
+function buyNow(i){cart=[products[i]];saveCart();checkout();}
+
+// CHECKOUT + RAZORPAY + WHATSAPP
+function checkout(){
+if(cart.length==0){alert("Cart empty");return;}
+
+let total=cart.reduce((s,p)=>s+p.price,0);
+let name=document.getElementById("name").value;
+let phone=document.getElementById("phone").value;
+let address=document.getElementById("address").value;
+
+if(!name||!phone||!address){alert("Fill details");return;}
+
+let orderText="Order: "+cart.map(p=>p.name).join(", ");
+orders.push(orderText);
+localStorage.setItem("orders",JSON.stringify(orders));
+
+let options={
+key:"YOUR_KEY_ID",
+amount:total*100,
+currency:"INR",
+name:"QuickDropp",
+handler:function(res){
+let msg=`${orderText}%0AName:${name}%0APhone:${phone}%0AAddress:${address}%0APayment:${res.razorpay_payment_id}`;
+window.open("https://wa.me/918849322203?text="+msg);
+}
+};
+
+new Razorpay(options).open();
+
+cart=[];
+saveCart();
+}
+
+// LOCATION
 function getLocation(){
- navigator.geolocation.getCurrentPosition(pos=>{
-  let lat=pos.coords.latitude;
-  let lon=pos.coords.longitude;
-  document.getElementById("map").src=`https://www.google.com/maps?q=${lat},${lon}&output=embed`;
+navigator.geolocation.getCurrentPosition(pos=>{
+let lat=pos.coords.latitude;
+let lon=pos.coords.longitude;
+document.getElementById("map").src=`https://www.google.com/maps?q=${lat},${lon}&output=embed`;
 
-  fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
-  .then(r=>r.json())
-  .then(d=>{
-   document.getElementById("address").value=d.display_name;
-  });
- });
+fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+.then(r=>r.json())
+.then(d=>{
+document.getElementById("address").value=d.display_name;
+});
+});
 }
 
-loadProducts();
 </script>
 
 </body>
